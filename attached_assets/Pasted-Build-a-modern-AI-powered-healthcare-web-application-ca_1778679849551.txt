@@ -1,0 +1,103 @@
+Build a modern AI-powered healthcare web application called RADapp.
+
+RADapp is an AI radiology assistant designed to help patients and radiography professionals better understand radiology reports and imaging findings.
+
+The app should feel like a real startup product — futuristic, premium, clean, responsive, and visually impressive for a hackathon demo.
+
+STYLE & DESIGN:
+
+* Medical-tech aesthetic
+* Blue and white color palette with subtle dark accents
+* Smooth animations and transitions
+* Modern glassmorphism cards
+* Beautiful typography
+* Fully responsive mobile-first layout
+* Dashboard-style UI
+* Professional healthcare branding
+* Elegant loading animations
+* Polished SaaS-style interface
+
+CORE FEATURES:
+
+1. Upload radiology reports (PDF, image, or text)
+2. AI-generated simplified explanation of reports
+3. Urgency detection:
+
+   * Low
+   * Moderate
+   * High
+4. Patient-friendly summaries
+5. Voice playback of explanations
+6. Dashboard showing recent uploads
+7. AI chat assistant for follow-up questions
+8. Secure login/signup pages
+9. Dark/light mode toggle
+10. Demo sample reports users can test instantly
+
+PAGES:
+
+1. Landing Page
+
+   * Hero section
+   * Feature highlights
+   * Testimonials
+   * CTA buttons
+   * Professional healthcare visuals
+
+2. Authentication Pages
+
+   * Login
+   * Signup
+   * Forgot password
+
+3. Dashboard
+
+   * Recent reports
+   * Stats cards
+   * AI insights
+   * User profile section
+
+4. Upload Report Page
+
+   * Drag-and-drop upload
+   * Upload progress animation
+   * Preview uploaded files
+
+5. AI Results Page
+
+   * Simplified explanation
+   * Medical terms breakdown
+   * Urgency badge
+   * Recommended next steps
+   * Voice playback button
+
+6. AI Assistant Chat Page
+
+   * Conversational medical assistant
+   * Clean chat UI
+   * Suggested prompts
+
+7. About RADapp Page
+
+   * Mission
+   * Team
+   * Healthcare impact
+
+TECH STACK:
+
+* React
+* TypeScript
+* Tailwind CSS
+* Modern component architecture
+
+IMPORTANT:
+
+* Make the app functional and hackathon-ready
+* Include realistic dummy medical data
+* Generate clean reusable components
+* Make the UI extremely polished and impressive
+* Add subtle animations and hover effects
+* Include icons and professional dashboard styling
+* Ensure the app can easily integrate with OpenAI or Gemini APIs later
+
+The final result should look like a funded AI healthcare startup product suitable for winning a university AI hackathon.

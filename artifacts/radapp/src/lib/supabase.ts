@@ -187,50 +187,32 @@ export async function sendChatMessage(userId: string, content: string): Promise<
   return data;
 }
 
-// ── Gemini AI ──────────────────────────────────────────────────────────────
+// ── Gemini via Supabase Edge Function ─────────────────────────────────────
+
+const EDGE_FN_URL = `${supabaseUrl}/functions/v1/gemini`;
+
+async function callGeminiEdge(type: "analyze" | "chat", payload: any): Promise<string> {
+  const res = await fetch(EDGE_FN_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${supabaseAnonKey}`,
+    },
+    body: JSON.stringify({ type, payload }),
+  });
+  if (!res.ok) throw new Error(`Edge function error: ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.text ?? "";
+}
 
 async function analyzeWithGemini(
   text: string,
   imageBase64?: string,
   imageMimeType?: string
 ): Promise<{ simplified: string; terms: string; steps: string; urgency: Urgency }> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string;
-  if (!apiKey) return fallbackAnalysis(text);
-
-  const prompt = `You are a medical AI assistant helping patients understand their radiology reports.
-
-Analyze the provided radiology ${imageBase64 ? "image and/or report text" : "report text"} and respond with ONLY a valid JSON object (no markdown, no code blocks):
-
-{
-  "urgency": "low" | "moderate" | "high",
-  "simplified": "2-3 paragraph plain English explanation for a non-medical patient. Be empathetic and clear.",
-  "terms": "Key medical terms explained simply. Format: Term: explanation. Term: explanation.",
-  "steps": "Numbered next steps. Format: 1. step\\n2. step\\n3. step"
-}
-
-Urgency: low = normal/routine, moderate = follow-up within 1-2 weeks, high = urgent/immediate attention.
-
-${text ? `Report Text:\n${text}` : "No text — analyze the image only."}`;
-
   try {
-    const parts: any[] = [{ text: prompt }];
-    if (imageBase64 && imageMimeType) {
-      parts.push({ inlineData: { mimeType: imageMimeType, data: imageBase64 } });
-    }
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 1500, thinkingConfig: { thinkingBudget: 0 } },
-        }),
-      }
-    );
-    if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
-    const data = await res.json() as any;
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const raw = await callGeminiEdge("analyze", { text, imageBase64, imageMimeType });
     const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const parsed = JSON.parse(cleaned);
     return {
@@ -248,39 +230,8 @@ async function getAIResponse(
   userMessage: string,
   history: { role: string; content: string }[]
 ): Promise<string> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string;
-  if (!apiKey) return fallbackChatResponse(userMessage);
-
-  const historyText = history
-    .map((m) => `${m.role === "user" ? "Patient" : "Assistant"}: ${m.content}`)
-    .join("\n");
-
-  const prompt = `You are RADapp's AI Medical Assistant — compassionate and knowledgeable, helping patients understand radiology reports.
-
-Guidelines:
-- Explain in plain, empathetic language
-- Be reassuring but honest about urgency
-- Always recommend consulting a real doctor for personal decisions
-- Keep responses concise (2-4 sentences for simple questions)
-
-${historyText ? `Recent conversation:\n${historyText}\n` : ""}Patient: ${userMessage}
-Assistant:`;
-
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 512, thinkingConfig: { thinkingBudget: 0 } },
-        }),
-      }
-    );
-    if (!res.ok) throw new Error();
-    const data = await res.json() as any;
-    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? fallbackChatResponse(userMessage);
+    return await callGeminiEdge("chat", { message: userMessage, history });
   } catch {
     return fallbackChatResponse(userMessage);
   }

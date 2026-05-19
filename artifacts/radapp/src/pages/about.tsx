@@ -5,9 +5,9 @@ import { Nav } from "@/components/nav";
 import { Button } from "@/components/ui/button";
 
 const TEAM = [
-  { name: "Dr. Emily Chen", role: "Chief Medical Officer", bio: "Board-certified radiologist with 15 years of experience at Stanford Medical Center. Passionate about making medical information accessible to all patients." },
-  { name: "Marcus Rivera", role: "CEO & Co-Founder", bio: "Former product lead at Google Health. Built healthcare AI systems serving over 2 million patients across 40 countries." },
-  { name: "Dr. Aisha Patel", role: "Head of AI Research", bio: "PhD in Medical Informatics from MIT. Published 30+ papers on AI-assisted diagnostics and natural language processing in healthcare." },
+  { name: "Chidebe Chikamso", role: "Chief Medical Officer", bio: "Board-certified radiologist with 15 years of experience at Stanford Medical Center. Passionate about making medical information accessible to all patients." },
+  { name: "Clivvord Nnamni", role: "CEO & Co-Founder", bio: "Former product lead at Google Health. Built healthcare AI systems serving over 2 million patients across 40 countries." },
+  { name: "Emmy White", role: "Head of AI Research", bio: "PhD in Medical Informatics from MIT. Published 30+ papers on AI-assisted diagnostics and natural language processing in healthcare." },
   { name: "James Kim", role: "CTO", bio: "Previously led engineering at Epic Systems. Expert in healthcare data security, HIPAA compliance, and scalable medical infrastructure." },
 ];
 

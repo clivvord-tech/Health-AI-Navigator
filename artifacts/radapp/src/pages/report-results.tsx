@@ -1,11 +1,12 @@
 import { Link, useParams } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Volume2, VolumeX, AlertTriangle, CheckCircle, BookOpen, ListChecks, Clock, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Volume2, VolumeX, AlertTriangle, CheckCircle, BookOpen, ListChecks, Clock, FileText, Loader2, Share2, Copy } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Nav } from "@/components/nav";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetReport } from "@workspace/api-client-react";
+import { useToast } from "@/hooks/use-toast";
 
 const urgencyConfig: Record<string, {
   badge: string;
@@ -41,7 +42,9 @@ export default function ReportResults() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const { toast } = useToast();
 
   const { data: report, isLoading } = useGetReport(id, {
     query: { enabled: !!id && !isNaN(id) },
@@ -52,6 +55,21 @@ export default function ReportResults() {
       if (typeof window !== "undefined") window.speechSynthesis?.cancel();
     };
   }, []);
+
+  const handleShare = async () => {
+    setIsSharing(true);
+    try {
+      const res = await fetch(`/api/reports/${id}/share`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      const { url } = await res.json();
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Share link copied!", description: "Anyone with this link can view the report." });
+    } catch {
+      toast({ title: "Failed to generate share link", variant: "destructive" });
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   const handleVoicePlayback = () => {
     if (!report?.simplifiedExplanation) return;
@@ -284,10 +302,14 @@ export default function ReportResults() {
               Ask AI Assistant about this report
             </Button>
           </Link>
+          <Button variant="outline" className="gap-2" onClick={handleShare} disabled={isSharing} data-testid="button-share-report">
+            {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+            Share Report
+          </Button>
           <Link href="/upload">
             <Button className="gap-2" data-testid="button-upload-another">
               <FileText className="w-4 h-4" />
-              Upload Another Report
+              Upload Another
             </Button>
           </Link>
         </motion.div>

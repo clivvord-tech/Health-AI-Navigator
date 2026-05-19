@@ -36,7 +36,13 @@ paths:
       operationId: listReports
       tags: [reports]
       summary: List all reports
-      description: Returns all radiology reports
+      description: Returns all radiology reports for the user
+      parameters:
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: List of reports
@@ -50,6 +56,12 @@ paths:
       operationId: createReport
       tags: [reports]
       summary: Submit a radiology report
+      parameters:
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -64,6 +76,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/Report"
 
+  /reports/recent:
+    get:
+      operationId: getRecentReports
+      tags: [reports]
+      summary: Get recent reports
+      description: Returns most recent 5 reports for the user
+      parameters:
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Recent reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+
   /reports/{id}:
     get:
       operationId: getReport
@@ -75,6 +109,11 @@ paths:
           required: true
           schema:
             type: integer
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: Report details
@@ -94,9 +133,59 @@ paths:
           required: true
           schema:
             type: integer
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         "204":
           description: Deleted
+
+  /reports/{id}/share:
+    post:
+      operationId: shareReport
+      tags: [reports]
+      summary: Generate a shareable link token for a report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Share token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareToken"
+
+  /reports/shared/{token}:
+    get:
+      operationId: getSharedReport
+      tags: [reports]
+      summary: Get a report by share token (public)
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Shared report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Not found
 
   /dashboard/stats:
     get:
@@ -104,6 +193,12 @@ paths:
       tags: [dashboard]
       summary: Get dashboard statistics
       description: Returns aggregate stats for the dashboard
+      parameters:
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: Dashboard stats
@@ -112,27 +207,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/DashboardStats"
 
-  /reports/recent:
-    get:
-      operationId: getRecentReports
-      tags: [reports]
-      summary: Get recent reports
-      description: Returns most recent 5 reports
-      responses:
-        "200":
-          description: Recent reports
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Report"
-
   /chat/messages:
     get:
       operationId: getChatMessages
       tags: [chat]
       summary: Get chat history
+      parameters:
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: reportId
+          in: query
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: Chat message history
@@ -146,6 +236,12 @@ paths:
       operationId: sendChatMessage
       tags: [chat]
       summary: Send a message to AI assistant
+      parameters:
+        - name: x-user-id
+          in: header
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -176,6 +272,8 @@ components:
       properties:
         id:
           type: integer
+        userId:
+          type: string
         title:
           type: string
         originalText:
@@ -196,6 +294,8 @@ components:
           type: ["string", "null"]
         bodyPart:
           type: ["string", "null"]
+        shareToken:
+          type: ["string", "null"]
         createdAt:
           type: string
 
@@ -211,6 +311,15 @@ components:
         reportType:
           type: string
         bodyPart:
+          type: string
+
+    ShareToken:
+      type: object
+      required: [token, url]
+      properties:
+        token:
+          type: string
+        url:
           type: string
 
     DashboardStats:
@@ -245,6 +354,8 @@ components:
           enum: [user, assistant]
         content:
           type: string
+        reportId:
+          type: ["integer", "null"]
         createdAt:
           type: string
 

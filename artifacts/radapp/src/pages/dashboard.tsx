@@ -247,14 +247,14 @@ export default function Dashboard() {
               </div>
 
               {/* Urgency breakdown */}
-              {!statsLoading && stats && (
+              {!statsLoading && stats && stats.urgencyBreakdown && (
                 <div className="p-5 rounded-2xl border border-border bg-card">
                   <span className="text-sm font-medium">Urgency Breakdown</span>
                   <div className="mt-4 space-y-3">
                     {[
-                      { label: "Low", value: stats.urgencyBreakdown.low, color: "bg-emerald-500" },
-                      { label: "Moderate", value: stats.urgencyBreakdown.moderate, color: "bg-amber-500" },
-                      { label: "High", value: stats.urgencyBreakdown.high, color: "bg-red-500" },
+                      { label: "Low", value: stats.urgencyBreakdown.low ?? 0, color: "bg-emerald-500" },
+                      { label: "Moderate", value: stats.urgencyBreakdown.moderate ?? 0, color: "bg-amber-500" },
+                      { label: "High", value: stats.urgencyBreakdown.high ?? 0, color: "bg-red-500" },
                     ].map((item) => {
                       const total = stats.totalReports || 1;
                       const pct = Math.round((item.value / total) * 100);

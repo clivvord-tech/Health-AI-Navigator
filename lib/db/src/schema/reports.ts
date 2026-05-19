@@ -7,6 +7,7 @@ export const reportStatusEnum = pgEnum("report_status", ["pending", "processing"
 
 export const reportsTable = pgTable("reports", {
   id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().default("anonymous"),
   title: text("title").notNull(),
   originalText: text("original_text"),
   simplifiedExplanation: text("simplified_explanation"),
@@ -16,6 +17,7 @@ export const reportsTable = pgTable("reports", {
   medicalTermsBreakdown: text("medical_terms_breakdown"),
   reportType: text("report_type"),
   bodyPart: text("body_part"),
+  shareToken: text("share_token"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

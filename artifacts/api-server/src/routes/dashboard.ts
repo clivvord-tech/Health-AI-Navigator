@@ -1,13 +1,18 @@
 import { Router } from "express";
 import { db, reportsTable } from "@workspace/db";
-import { eq, sql, gte } from "drizzle-orm";
+import { eq, sql, gte, and } from "drizzle-orm";
 
 const router = Router();
+
+function getUserId(req: any): string {
+  return (req.headers["x-user-id"] as string) || "anonymous";
+}
 
 // GET /api/dashboard/stats
 router.get("/dashboard/stats", async (req, res) => {
   try {
-    // Total count and urgency breakdown in one query
+    const userId = getUserId(req);
+
     const [stats] = await db
       .select({
         total: sql<number>`count(*)::int`,
@@ -15,16 +20,16 @@ router.get("/dashboard/stats", async (req, res) => {
         moderate: sql<number>`count(*) filter (where urgency = 'moderate')::int`,
         high: sql<number>`count(*) filter (where urgency = 'high')::int`,
       })
-      .from(reportsTable);
+      .from(reportsTable)
+      .where(eq(reportsTable.userId, userId));
 
-    // Recent activity: reports created in the last 7 days
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const [recentActivity] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(reportsTable)
-      .where(gte(reportsTable.createdAt, sevenDaysAgo));
+      .where(and(eq(reportsTable.userId, userId), gte(reportsTable.createdAt, sevenDaysAgo)));
 
     res.json({
       totalReports: stats?.total ?? 0,

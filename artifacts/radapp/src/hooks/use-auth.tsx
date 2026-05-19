@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useLocation } from "wouter";
 
 type User = {
+  id: string;
   name: string;
   email: string;
 };
@@ -15,6 +16,16 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function generateUserId(email: string): string {
+  // Stable deterministic ID from email
+  let hash = 0;
+  for (let i = 0; i < email.length; i++) {
+    hash = (hash << 5) - hash + email.charCodeAt(i);
+    hash |= 0;
+  }
+  return `user_${Math.abs(hash).toString(36)}`;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,13 +34,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const storedUser = localStorage.getItem("radapp_user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsed = JSON.parse(storedUser);
+      // Migrate old users without id
+      if (!parsed.id) {
+        parsed.id = generateUserId(parsed.email);
+        localStorage.setItem("radapp_user", JSON.stringify(parsed));
+      }
+      setUser(parsed);
     }
     setIsLoading(false);
   }, []);
 
-  const login = (email: string, name = "Dr. User") => {
-    const newUser = { email, name };
+  const login = (email: string, name = "User") => {
+    const newUser = { id: generateUserId(email), email, name };
     setUser(newUser);
     localStorage.setItem("radapp_user", JSON.stringify(newUser));
   };

@@ -40,8 +40,9 @@ export default function Chat() {
     setMessage("");
 
     // Optimistically add user message
+    const existing = Array.isArray(messages) ? messages : [];
     const tempMessages = [
-      ...(messages ?? []),
+      ...existing,
       { id: -1, role: "user" as const, content, createdAt: new Date().toISOString() },
     ];
 
@@ -95,7 +96,7 @@ export default function Chat() {
                 <Skeleton className="h-12 w-1/2 ml-auto" />
                 <Skeleton className="h-20 w-4/5" />
               </div>
-            ) : messages && messages.length > 0 ? (
+            ) : messages && Array.isArray(messages) && messages.length > 0 ? (
               <AnimatePresence initial={false}>
                 {messages.map((msg, i) => (
                   <motion.div

@@ -154,7 +154,7 @@ export default function Dashboard() {
                     <Skeleton className="h-4 w-24" />
                   </div>
                 ))
-              ) : recent && recent.length > 0 ? (
+              ) : Array.isArray(recent) && recent.length > 0 ? (
                 recent.map((report) => (
                   <motion.div
                     key={report.id}

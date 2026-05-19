@@ -4,7 +4,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
-import { setAuthTokenGetter } from "@workspace/api-client-react";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
@@ -16,25 +15,6 @@ import ReportResults from "@/pages/report-results";
 import SharedReport from "@/pages/shared-report";
 import Chat from "@/pages/chat";
 import About from "@/pages/about";
-
-// Inject x-user-id header into every API request
-setAuthTokenGetter(() => null); // keep existing auth logic
-
-// Monkey-patch fetch to inject x-user-id from localStorage
-const _origFetch = window.fetch.bind(window);
-window.fetch = (input, init = {}) => {
-  const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : (input as Request).url;
-  if (url.startsWith("/api")) {
-    const stored = localStorage.getItem("radapp_user");
-    const userId = stored ? JSON.parse(stored).id : null;
-    if (userId) {
-      const headers = new Headers((init as RequestInit).headers);
-      headers.set("x-user-id", userId);
-      return _origFetch(input, { ...init, headers });
-    }
-  }
-  return _origFetch(input, init);
-};
 
 const queryClient = new QueryClient();
 

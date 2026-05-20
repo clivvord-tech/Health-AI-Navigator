@@ -9,10 +9,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { getRecentReports, getDashboardStats, deleteReport, type Report } from "@/lib/supabase";
 
-const urgencyColors: Record<string, { badge: string; dot: string }> = {
-  low: { badge: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20", dot: "bg-emerald-500" },
-  moderate: { badge: "bg-amber-500/10 text-amber-500 border-amber-500/20", dot: "bg-amber-500" },
-  high: { badge: "bg-red-500/10 text-red-500 border-red-500/20", dot: "bg-red-500" },
+const urgencyColors: Record<string, { badge: string }> = {
+  low: { badge: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
+  moderate: { badge: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
+  high: { badge: "bg-red-500/10 text-red-500 border-red-500/20" },
 };
 
 function StatCard({ label, value, icon: Icon, color, isLoading }: {
@@ -116,7 +116,8 @@ export default function Dashboard() {
                 ))
               ) : recent.length > 0 ? (
                 recent.map((report) => (
-                  <motion.div key={report.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} data-testid={`card-report-${report.id}`}
+                  <motion.div key={report.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
+                    data-testid={`card-report-${report.id}`}
                     className="group flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <FileText className="w-5 h-5 text-primary" />

@@ -30,7 +30,7 @@ export default function Chat() {
   }, [messages]);
 
   const loadMessages = useCallback(async () => {
-    if (!user) return;
+    if (!user) { setIsLoading(false); return; }
     try {
       const data = await getChatMessages(user.id);
       setMessages(data);
@@ -49,13 +49,11 @@ export default function Chat() {
     setMessage("");
     setIsSending(true);
 
-    // Optimistic user message
     const tempMsg: ChatMessage = { id: -1, user_id: user.id, report_id: null, role: "user", content, created_at: new Date().toISOString() };
     setMessages((prev) => [...prev, tempMsg]);
 
     try {
       const aiMsg = await sendChatMessage(user.id, content);
-      // Reload to get both saved messages with real IDs
       const updated = await getChatMessages(user.id);
       setMessages(updated);
     } catch {
@@ -98,8 +96,9 @@ export default function Chat() {
             ) : messages.length > 0 ? (
               <AnimatePresence initial={false}>
                 {messages.map((msg, i) => (
-                  <motion.div key={msg.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.02, 0.3) }}
-                    className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`} data-testid={`message-${msg.role}-${msg.id}`}>
+                  <motion.div key={msg.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                    className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === "user" ? "bg-primary" : "bg-muted border border-border"}`}>
                       {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-muted-foreground" />}
                     </div>
@@ -139,7 +138,6 @@ export default function Chat() {
             <div className="px-4 pb-3 flex flex-wrap gap-2">
               {SUGGESTED_PROMPTS.map((prompt) => (
                 <button key={prompt} onClick={() => handleSend(prompt)}
-                  data-testid={`button-prompt-${prompt.slice(0, 20).replace(/\s/g, "-").toLowerCase()}`}
                   className="text-xs px-3 py-1.5 rounded-full border border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-colors text-left">
                   {prompt}
                 </button>
@@ -149,9 +147,11 @@ export default function Chat() {
 
           <div className="p-4 border-t border-border">
             <div className="flex gap-2 items-end">
-              <Textarea placeholder="Ask about your radiology report..." value={message} onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={handleKeyDown} data-testid="input-chat-message" className="flex-1 resize-none min-h-[44px] max-h-32" rows={1} />
-              <Button onClick={() => handleSend()} disabled={!message.trim() || isSending} className="h-11 w-11 p-0 flex-shrink-0" data-testid="button-send-message">
+              <Textarea placeholder="Ask about your radiology report..." value={message}
+                onChange={(e) => setMessage(e.target.value)} onKeyDown={handleKeyDown}
+                data-testid="input-chat-message" className="flex-1 resize-none min-h-[44px] max-h-32" rows={1} />
+              <Button onClick={() => handleSend()} disabled={!message.trim() || isSending}
+                className="h-11 w-11 p-0 flex-shrink-0" data-testid="button-send-message">
                 {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
             </div>

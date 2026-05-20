@@ -31,15 +31,17 @@ export default function ReportResults() {
   }, []);
 
   useEffect(() => {
-    if (!user || !id || isNaN(id)) return;
-    getReport(id, user.id).then((r) => { setReport(r); setIsLoading(false); });
+    if (!id || isNaN(id)) { setIsLoading(false); return; }
+    const userId = user?.id ?? "anonymous";
+    getReport(id, userId).then((r) => { setReport(r); setIsLoading(false); });
   }, [id, user]);
 
   const handleShare = async () => {
-    if (!user || !report) return;
+    if (!report) return;
     setIsSharing(true);
     try {
-      const token = await shareReport(report.id, user.id);
+      const userId = user?.id ?? "anonymous";
+      const token = await shareReport(report.id, userId);
       const url = `${window.location.origin}/shared/${token}`;
       await navigator.clipboard.writeText(url);
       toast({ title: "Share link copied!", description: "Anyone with this link can view the report." });
@@ -96,6 +98,24 @@ export default function ReportResults() {
           </Button>
         </Link>
 
+        {report.urgency === "high" && (
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            className="mb-6 p-4 rounded-2xl bg-red-500/10 border-2 border-red-500/50 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 animate-pulse">
+                <AlertTriangle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-red-500">Urgent — Seek Medical Attention</p>
+                <p className="text-sm text-muted-foreground">This report contains findings that require prompt medical evaluation.</p>
+              </div>
+            </div>
+            <a href="https://www.google.com/maps/search/hospital+near+me" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white gap-2 flex-shrink-0">Find Nearest Hospital →</Button>
+            </a>
+          </motion.div>
+        )}
+
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
@@ -109,7 +129,7 @@ export default function ReportResults() {
                 <span>{new Date(report.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
               </div>
             </div>
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-semibold text-sm flex-shrink-0 ${urgency.badge} ${urgency.pulse ? "urgency-pulse" : ""}`}>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-semibold text-sm flex-shrink-0 ${urgency.badge}`}>
               <UrgencyIcon className="w-4 h-4" />{urgency.label}
             </div>
           </div>
@@ -180,7 +200,8 @@ export default function ReportResults() {
           )}
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-border">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+          className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-border">
           <Link href="/chat" className="flex-1">
             <Button variant="outline" className="w-full gap-2" data-testid="button-ask-ai">Ask AI Assistant about this report</Button>
           </Link>

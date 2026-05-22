@@ -214,7 +214,7 @@ Health-AI-Navigator/
 
 ## 🔗 Links
 
-- **Live Demo:** [your-deployment-url]
+- **Live Demo:** [(https://medinav-bhu.vercel.app)]
 - **GitHub:** [this repo]
 - **Devpost:** [your-devpost-link]
 

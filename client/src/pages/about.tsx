@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 
 const TEAM = [
   { name: "Chidebe Chikamso", role: "Chief Medical Officer", bio: "Medical doctor with 10 years in community health. Passionate about making healthcare accessible to low-income Nigerians." },
-  { name: "Clivvord Nnamani", role: "CEO & Co-Founder", bio: "Health tech entrepreneur. Previously built fintech solutions for underserved communities across West Africa." },
-  { name: "Emmy White", role: "Head of AI", bio: "AI/ML engineer specializing in healthcare NLP. Built AI systems that have helped over 500,000 patients navigate care." },
-  { name: "James Kim", role: "CTO", bio: "Full-stack engineer with expertise in health data systems, security, and scalable infrastructure." },
+  { name: "Nnamani Daniel", role: "CEO & Co-Founder", bio: "Health tech entrepreneur. Previously built fintech solutions for underserved communities across West Africa." },
+  { name: "Emmanuel Falade", role: "Head of AI", bio: "AI/ML engineer specializing in healthcare NLP. Built AI systems that have helped over 500,000 patients navigate care." },
+  { name: "Emmanuel Bello", role: "CTO", bio: "Full-stack engineer with expertise in health data systems, security, and scalable infrastructure." },
 ];
 
 const IMPACT = [
